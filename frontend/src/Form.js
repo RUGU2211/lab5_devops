@@ -1,5 +1,3 @@
-// frontend/src/Form.js
-
 import React, { useState } from "react";
 
 function Form() {
@@ -8,13 +6,26 @@ function Form() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://backend:5000/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email }),
-    });
-    const data = await response.json();
-    alert(`User saved: ${data.name} (${data.email})`);
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+
+      // Check if the response was successful
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Something went wrong on the server.');
+      }
+
+      const data = await response.json();
+      alert(`User saved: ${data.name} (${data.email})`);
+    } catch (error) {
+      // Catch network errors and other exceptions
+      console.error("Submission failed:", error);
+      alert("Submission failed: " + error.message);
+    }
   };
 
   return (
