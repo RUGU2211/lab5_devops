@@ -1,32 +1,29 @@
 const express = require("express");
-const User = require("../models/User");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
-const router = express.Router();
+const userRoutes = require("./routes/userRoutes");
 
-// POST - Save user
-router.post("/", async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const app = express();
+
+// Middleware
+app.use(cors({ origin: "http://localhost:3000" }));
+app.use(express.json());
+
+// Routes
+app.use("/api/users", userRoutes);
+
+// DB connection
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/mydb", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB Connected"))
+.catch(err => console.error("❌ MongoDB Error:", err));
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-
-// GET - Fetch all users
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Optional: test route
-router.get("/test", (req, res) => {
-  res.send("✅ User API working");
-});
-
-module.exports = router;
