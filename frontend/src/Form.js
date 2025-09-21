@@ -1,3 +1,5 @@
+// frontend/src/Form.js
+
 import React, { useState } from "react";
 
 function Form() {
@@ -6,7 +8,7 @@ function Form() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/api/users", {
+    const response = await fetch("http://backend:5000/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email }),
