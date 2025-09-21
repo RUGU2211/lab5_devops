@@ -1,38 +1,40 @@
-version: "3.8"
-
 services:
   frontend:
-    build: ./frontend
-    container_name: mern-frontend
+    build:
+      context: ./frontend
     ports:
       - "3000:80"
     depends_on:
-      backend:
-        condition: service_healthy # This is the new condition
+      - backend
+    networks:
+      - mern-network
 
   backend:
-    build: ./backend
-    container_name: mern-backend
+    build:
+      context: ./backend
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb://mongo:27017/mernDB
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/mernapp
     depends_on:
       - mongo
-    healthcheck: # Add this entire block
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/users"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    networks:
+      - mern-network
 
   mongo:
     image: mongo:6.0
     container_name: mern-mongo
-    restart: always
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo-data:/data/db
+    networks:
+      - mern-network
 
 volumes:
-  mongo_data:
+  mongo-data:
+
+networks:
+  mern-network:
+    driver: bridge
