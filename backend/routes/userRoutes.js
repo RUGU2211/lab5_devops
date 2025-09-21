@@ -1,46 +1,25 @@
 const express = require("express");
-const User = require("../models/User");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-const router = express.Router();
+const userRoutes = require("./routes/userRoutes");
 
-// ✅ Test route
-router.get("/", (req, res) => {
-  res.json({ message: "User API is working" });
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use("/api/users", userRoutes);
+
+// DB connection
+mongoose.connect("mongodb://localhost:27017/mydb")
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Error:", err));
+
+// Start server
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-
-// ✅ Register user
-router.post("/register", async (req, res) => {
-  try {
-    const { username, password, email } = req.body;
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
-    }
-
-    const newUser = new User({ username, password, email });
-    await newUser.save();
-
-    res.status(201).json({ message: "User registered successfully", user: newUser });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Login user (basic, without JWT yet)
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email, password });
-    if (!user) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    res.json({ message: "Login successful", user });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-module.exports = router;
