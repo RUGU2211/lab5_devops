@@ -1,25 +1,32 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-require("dotenv").config();
+const User = require("../models/User");
 
-const userRoutes = require("./routes/userRoutes");
+const router = express.Router();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+// POST - Save user
+router.post("/", async (req, res) => {
+  try {
+    const user = new User(req.body);
+    await user.save();
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// Routes
-app.use("/api/users", userRoutes);
+// GET - Fetch all users
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// MongoDB Connection
-const PORT = 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://mongo:27017/mernDB";
+// Optional: test route
+router.get("/test", (req, res) => {
+  res.send("✅ User API working");
+});
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Connected");
-    app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
-  })
-  .catch((err) => console.log(err));
+module.exports = router;

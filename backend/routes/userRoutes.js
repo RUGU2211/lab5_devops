@@ -3,7 +3,7 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// POST - add user
+// ✅ POST - Save a new user
 router.post("/", async (req, res) => {
   try {
     const user = new User(req.body);
@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET - list all users
+// ✅ GET - Fetch all users
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
@@ -22,6 +22,11 @@ router.get("/", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ✅ Test route (optional, for debugging)
+router.get("/test", (req, res) => {
+  res.send("User API working!");
 });
 
 module.exports = router;
